@@ -45,7 +45,7 @@ use quote::quote;
 /// Attribute used to unroll for loops found inside a function block.
 #[proc_macro_attribute]
 pub fn unroll_for_loops(_meta: TokenStream, input: TokenStream) -> TokenStream {
-    println!("unroll_for_loops")
+    print!("HELLO!");
     let item: Item = syn::parse(input).expect("Failed to parse input.");
 
     if let Item::Fn(item_fn) = item {
