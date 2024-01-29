@@ -73,15 +73,15 @@ fn unroll_in_block(block: &Block) -> Block {
         ref stmts,
     } = block;
     let mut new_stmts = Vec::new();
-    for stmt in stmts.iter() {
-        if let &Stmt::Expr(ref expr) = stmt {
-            new_stmts.push(Stmt::Expr(unroll(expr)));
-        } else if let &Stmt::Semi(ref expr, semi) = stmt {
-            new_stmts.push(Stmt::Semi(unroll(expr), semi));
-        } else {
-            new_stmts.push((*stmt).clone());
-        }
-    }
+    //for stmt in stmts.iter() {
+    //    if let &Stmt::Expr(ref expr) = stmt {
+    //        new_stmts.push(Stmt::Expr(unroll(expr)));
+    //    } else if let &Stmt::Semi(ref expr, semi) = stmt {
+    //        new_stmts.push(Stmt::Semi(unroll(expr), semi));
+    //    } else {
+    //        new_stmts.push((*stmt).clone());
+    //    }
+    //}
     Block {
         brace_token: brace_token.clone(),
         stmts: new_stmts,
