@@ -45,7 +45,6 @@ use quote::quote;
 /// Attribute used to unroll for loops found inside a function block.
 #[proc_macro_attribute]
 pub fn unroll_for_loops(_meta: TokenStream, input: TokenStream) -> TokenStream {
-    print!("HELLO!");
     let item: Item = syn::parse(input).expect("Failed to parse input.");
 
     if let Item::Fn(item_fn) = item {
@@ -93,7 +92,6 @@ fn unroll_in_block(block: &Block) -> Block {
 fn unroll(expr: &Expr) -> Expr {
     // impose a scope that we can break out of so we can return stmt without copying it.
     if let &Expr::ForLoop(ref for_loop) = expr {
-        println!("LOOP");
         let ExprForLoop {
             ref attrs,
             ref label,
@@ -105,13 +103,6 @@ fn unroll(expr: &Expr) -> Expr {
 
         let new_body = unroll_in_block(&*body);
 
-        let forloop_with_body = |body| {
-            Expr::ForLoop(ExprForLoop {
-                body,
-                ..(*for_loop).clone()
-            })
-        };
-
         if let Pat::Ident(PatIdent {
             ref by_ref,
             ref mutability,
@@ -122,7 +113,7 @@ fn unroll(expr: &Expr) -> Expr {
         {
             // Don't know how to deal with these so skip and return the original.
             if by_ref.is_some() || mutability.is_some() || subpat.is_some() {
-                return forloop_with_body(new_body);
+                panic!("Can't parse iterator ident");
             }
             let idx = ident; // got the index variable name
 
@@ -142,7 +133,7 @@ fn unroll(expr: &Expr) -> Expr {
                     {
                         lit_int.base10_parse::<usize>().expect("literal should be a base-10 integer that fits in a `usize`")
                     } else {
-                        return forloop_with_body(new_body);
+                        panic!("Can't parse start loop");
                     }
                 } else {
                     0
@@ -157,11 +148,11 @@ fn unroll(expr: &Expr) -> Expr {
                     {
                         lit_int.base10_parse::<usize>().expect("literal should be a base-10 integer that fits in a `usize`")
                     } else {
-                        return forloop_with_body(new_body);
+                        panic!("Can't parse end loop");
                     }
                 } else {
                     // we need to know where the limit is to know how much to unroll by.
-                    return forloop_with_body(new_body);
+                    panic!("Can't fount end loop");
                 } + if let &RangeLimits::Closed(_) = limits {
                     1
                 } else {
@@ -188,10 +179,10 @@ fn unroll(expr: &Expr) -> Expr {
                     block,
                 });
             } else {
-                forloop_with_body(new_body)
+                panic!("Can't parse range of loop");
             }
         } else {
-            forloop_with_body(new_body)
+            panic!("Loop must have iterator");
         }
     } else if let &Expr::If(ref if_expr) = expr {
         let ExprIf {
